@@ -6,7 +6,7 @@ const port = 8080;
 
 const server = http.createServer((req, res) => {
     const options = {
-        url: 'https://api.themoviedb.org/3/watch/providers/regions?language=en-US' + req.url,
+        url: 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1' + req.url,
         headers: {
             'Authorization': 'Bearer ' + apiKey
         }
