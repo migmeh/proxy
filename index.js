@@ -1,22 +1,38 @@
-const http = require('http');
-const request = require('request');
-
-const apiKey = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmNWE4OTE1NjQ1NTAxYTI0OTM3MjdkNmIwOWNiYWJkMCIsInN1YiI6IjY1MmIwZDFhMGNiMzM1MTZmZDQ5OWNkNSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.E9TLUqdT5_A-by2QM0gdJ4MSHqS2KLufOvhcSMqn7uE';
+const express = require('express');
+const axios = require('axios');
+const app = express();
 const port = 8080;
+var cors = require('cors');
 
-const server = http.createServer((req, res) => {
-    const options = {
-        url: 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1' + req.url,
-        headers: {
-            'Authorization': 'Bearer ' + apiKey
-        }
-    };
-    const apiRequest = request(options);
-    req.pipe(apiRequest);
-    apiRequest.pipe(res);
+const apiKey = 'f5a8915645501a2493727d6b09cbabd0';
+
+
+// use it before all route definitions
+app.use(cors({origin: 'http://localhost:3000'}));
+
+app.get('/trending/movie/day', async (req, res) => {
+    try {
+        const response = await axios.get(`https://api.themoviedb.org/3/trending/movie/day?api_key=${apiKey}&media_type=movie`);
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).send('Error al obtener películas');
+    }
 });
 
-server.listen(port, () => {
-    console.log('El servidor proxy está escuchando en el puerto' +port);
-    console.log('http://localhost:' +port);
+app.get('/search/movie', async (req, res) => {
+    const movieTitle = req.query.query;
+    if (!movieTitle) {
+        return res.status(400).send('Se requiere el título de la película');
+    }
+
+    try {
+        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${movieTitle}`);
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).send('Error al buscar películas');
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Servidor corriendo en http://localhost:${port}`);
 });
